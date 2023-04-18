@@ -19,7 +19,7 @@ jobs:
           pip install -r requirements.txt
       - name: Deploy Code
         run: |
-          ssh -i ${{ secrets.aws_ec2_ssh_key_mac }} ubuntu@ec2-3-110-32-195.ap-south-1.compute.amazonaws.com
+          ssh -i ${{ secrets.aws_ec2_ssh_key_mac }} ubuntu@3-110-32-195
           echo "Completed connecting via ssh"
           
           cd /home/ubuntu/testing-django
