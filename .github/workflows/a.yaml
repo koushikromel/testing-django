@@ -1,0 +1,30 @@
+
+      - name: Start AWS EC2
+        run: |
+          aws ec2 start-instances --instance-ids ${{secrets.AWS_EC2_INSTANCE_ID }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+name: Deploy to EC2 From GitHub Actions
+
+on:
+  workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-pip -y
+          sudo pip3 install virtualenv
+          virtualenv env
+          source env/bin/activate
+          pip install -r requirements.txt
+      - name: Deploy Code
+        run: |
+          ssh -i ${{ secrets.aws_ec2_ssh_key_mac }} ec2-user@{{ secrets.EC2_PUBLIC_IP }} "cd /home/ubuntu/testing-django && git pull && source env/bin/activate && pip install -r requirements.txt && python manage.py migrate && sudo systemctl restart test-django.service"
